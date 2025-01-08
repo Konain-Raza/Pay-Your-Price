@@ -1,0 +1,41 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "6910729cde9274f7e7b672c2bbacd4f1"
+application_url = "https://unsubscribe-serving-mainly-appeared.trycloudflare.com"
+embedded = true
+name = "pay-your-price"
+handle = "pay-your-price-1"
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "konainraza.myshopify.com"
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2024-10"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "carts/update" ]
+  uri = "/webhooks/carts/carts_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_orders, write_products"
+
+[auth]
+redirect_urls = [
+  "https://unsubscribe-serving-mainly-appeared.trycloudflare.com/auth/callback",
+  "https://unsubscribe-serving-mainly-appeared.trycloudflare.com/auth/shopify/callback",
+  "https://unsubscribe-serving-mainly-appeared.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
