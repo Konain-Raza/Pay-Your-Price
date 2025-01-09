@@ -1,119 +1,47 @@
-<div style="width: 100%; display: flex; justify-content: center;">
-  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 10px; justify-content: center; width: max-content;">
-    <input type="number" id="price-input" name="properties[custom_price]" placeholder="Enter your price" style="border: none; outline: none; padding: 5px; width: 150px;" />
-    <button id="check-price-button" style="padding: 5px 10px;">Check</button>
-    <button id="add-to-cart-button" style="padding: 5px 10px; background-color: #007BFF; color: white; border: none; border-radius: 5px;">Add to Cart</button>
-  </div>
-</div>
+<form method="post" action="/cart/add" id="price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
+  <!-- Hidden input for product variant ID -->
+  <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+
+  <!-- Custom price input -->
+   <label for="custom" class="quantity__label form__label">
+     Pay your Price:
+   </label>
+  <input 
+    type="number" 
+    id="price-input" 
+    class="quantity"
+    name="properties[custom_price]" 
+    placeholder="Enter your price" 
+    style="border: none; outline: none; padding: 5px; width: 150px;" 
+    step="0.01" 
+  />
+  
+  <button type="submit" class="product-form__submit button button--full-width button--secondary">Add to cart</button>
+</form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const priceInput = document.getElementById('price-input');
-  const checkButton = document.getElementById('check-price-button');
-  const addToCartButton = document.getElementById('add-to-cart-button');
-  const product = {{ product.metafields | json }};
-console.log(product);
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("price-form");
+    const officialPrice = document.getElementsByClassName("price-item")[0];
+    const themeButtons = document.getElementsByTagName("product-form")[0];
+    themeButtons.style.display = "none";
+    console.log(themeButtons)
 
-  const selectedVariantId = {{ product.selected_or_first_available_variant.id }};
-  const selectedVariantPrice = {{ product.metafields.custom_minimum_price }};
+    const priceInput = document.getElementsByClassName("product-form__submit")[0];
+    const maxPrice = parseFloat(({{ product.price }} / 100).toFixed(2));
+    const defaultPrice = {{ product.metafields.custom.default_price }}
+    officialPrice.innerHTML = `${defaultPrice} - ${maxPrice}`
 
+    form.addEventListener("submit", (event) => {
+      const inputValue = parseFloat(priceInput.value);
 
-  console.log('Selected Variant ID:', selectedVariantId);
-  console.log('Selected Variant Price:', selectedVariantPrice);
-
-  checkButton.addEventListener('click', function () {
-    const inputPrice = parseFloat(priceInput.value);
-    if (isNaN(inputPrice)) {
-      alert('Please enter a valid price.');
-    } else if (inputPrice < selectedVariantPrice) {
-      alert(`The entered price is below the minimum price of ${selectedVariantPrice}.`);
-    } else {
-      alert('The entered price is acceptable.');
-    }
-  });
-
-  addToCartButton.addEventListener('click', function (event) {
-    event.preventDefault();
-
-    const inputPrice = parseFloat(priceInput.value);
-    // if (isNaN(inputPrice) || inputPrice < selectedVariantPrice) {
-    //   alert('Please enter a valid price above the minimum.');
-    //   return;
-    // }
-
-    const formData = {
-      items: [{
-        id: selectedVariantId,
-        quantity: 1,
-        price: "Rs" + 700.00,
-        properties: {
-          custom_price: inputPrice.toFixed(2)
-        }
-      }]
-    };
-
-    fetch(window.Shopify.routes.root + 'cart/add.js', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Item added to cart:', data);
-      updateCartDisplay();
-      updateCartWithCustomPrice(selectedVariantId, inputPrice);
-    })
-    .catch(error => {
-      console.error('Error:', error);
+      if (inputValue < defaultPrice || inputValue > maxPrice) {
+        event.preventDefault();
+        alert(`Please enter a price between ${defaultPrice} and ${maxPrice}.`);
+      }
     });
   });
-
-  function updateCartWithCustomPrice(variantId, customPrice) {
-    fetch('/cart.js')
-      .then(response => response.json())
-      .then(cart => {
-        const itemToUpdate = cart.items.find(item => item.variant_id === variantId);
-        if (itemToUpdate) {
-          itemToUpdate.properties.custom_price = customPrice;
-
-          const formData = {
-            updates: {
-              [itemToUpdate.id]: {
-                properties: itemToUpdate.properties
-              }
-            }
-          };
-
-          return fetch('/cart/update.js', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-          });
-        }
-      })
-      .then(response => response.json())
-      .then(updatedCart => {
-        console.log('Cart updated:', updatedCart);
-        updateCartDisplay();
-      })
-      .catch(error => console.error('Error updating cart:', error));
-  }
-
-  function updateCartDisplay() {
-    fetch(window.Shopify.routes.root + 'cart.js')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-      })
-      .catch(err => console.error('Error:', err));
-  }
-});
 </script>
-
 
 
 {% schema %}

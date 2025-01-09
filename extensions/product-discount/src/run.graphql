@@ -1,0 +1,17 @@
+query RunInput {
+  cart {
+    lines {
+      id
+      quantity
+      custom_price: attribute(key: "custom_price") {
+        value
+      }
+      cost {
+        amountPerQuantity {
+          currencyCode
+          amount
+        }
+      }
+    }
+  }
+}
