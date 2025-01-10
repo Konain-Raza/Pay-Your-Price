@@ -8,51 +8,39 @@ import { DiscountApplicationStrategy } from "../generated/api";
  */
 
 const EMPTY_DISCOUNT = {
-  discountApplicationStrategy: DiscountApplicationStrategy.First,
+  discountApplicationStrategy: DiscountApplicationStrategy.All,
   discounts: [],
 };
 
 export function run(input) {
-  console.log("Cart Line Data:", JSON.stringify(input.cart.lines));
+  const cartLines = input.cart.lines;
+  
+  const discounts = cartLines.map((line) => {
+    const qty = line.quantity;
+    const pricePerUnit = parseFloat(line.cost.amountPerQuantity.amount);
+    const customPricePerUnit = parseFloat(line.__custom_price?.value || 0);
+    const discountPerUnit = pricePerUnit - customPricePerUnit;
+    const totalDiscountAmount = discountPerUnit * qty;
 
-  const targets = input.cart.lines
-    .filter((line) => line.quantity >= 1)
-    .map((line) => {
-      const lineId = line.id;
-      const qty = line.quantity
-      const price = parseFloat(line.cost.amountPerQuantity.amount);
-      const customPrice = parseFloat(line.custom_price.value || 0);
-      const discountAmount = (price - customPrice );
-    
-
-
-
-      console.log(`Line ID: ${lineId}, Original Price: ${price}, Custom Price: ${customPrice}, Discount: ${discountAmount}`);
-
+    if (totalDiscountAmount > 0) {
       return {
-        cartLine: {
-          id: lineId,
+        targets: [{ cartLine: { id: line.id } }],
+        value: {
+          fixedAmount: {
+            amount: totalDiscountAmount,
+          },
         },
-        discountAmount: discountAmount, 
-        qty:qty// Store the discount amount
       };
-    });
+    }
+    return null;
+  }).filter(Boolean); // Remove null values for lines without a discount.
 
-  if (!targets.length) {
-    console.error("No cart lines qualify for volume discount.");
+  if (!discounts.length) {
     return EMPTY_DISCOUNT;
   }
 
   return {
-    discounts: targets.map((target) => ({
-      targets: [{ cartLine: target.cartLine }],
-      value: {
-        fixedAmount: {
-          amount: target.discountAmount * target.qty,
-        },
-      },
-    })),
-    discountApplicationStrategy: DiscountApplicationStrategy.First,
+    discounts: discounts,
+    discountApplicationStrategy: DiscountApplicationStrategy.All,
   };
 }
-

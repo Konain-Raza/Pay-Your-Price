@@ -3,7 +3,10 @@ query RunInput {
     lines {
       id
       quantity
-      custom_price: attribute(key: "custom_price") {
+      __custom_price: attribute(key: "__custom_price") {
+        value
+      }
+      __variant_id: attribute(key: "__variant_id") {
         value
       }
       cost {
