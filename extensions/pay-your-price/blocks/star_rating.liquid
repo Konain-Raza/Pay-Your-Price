@@ -1,87 +1,110 @@
-<form method="post" action="/cart/add" id="price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
-  <!-- Hidden input for product variant ID -->
-  <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
 
-  <!-- Custom price input -->
-  <input type="hidden" name="properties[__variant_id]" value="{{ product.variants.first.id }}" />
-  <input 
-    type="number" 
-    id="price-input" 
-    class="product-form__submit button button--full-width button--secondary"
-    name="properties[__custom_price]" 
-    placeholder="Enter your price" 
-    step="0.01" 
-  />
-  <div class="product-form__error-message-wrapper" role="alert" hidden>
-    <span class="svg-wrapper">
-      <svg class="icon icon-error" viewBox="0 0 13 13">
-        <circle cx="6.5" cy="6.5" r="5.5" stroke="#fff" stroke-width="2"></circle>
-        <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width=".7"></circle>
-        <path fill="#fff" d="m5.874 3.528.1 4.044h1.053l.1-4.044zm.627 6.133c.38 0 .68-.288.68-.656s-.3-.656-.68-.656-.681.288-.681.656.3.656.68.656"></path>
-        <path fill="#fff" stroke="#EB001B" stroke-width=".7" d="M5.874 3.178h-.359l.01.359.1 4.044.008.341h1.736l.008-.341.1-4.044.01-.359H5.873Zm.627 6.833c.56 0 1.03-.432 1.03-1.006s-.47-1.006-1.03-1.006-1.031.432-1.031 1.006.47 1.006 1.03 1.006Z"></path>
-      </svg>
-    </span>
-    <span class="product-form__error-message"></span>
-  </div>
-  <button type="submit" id="appcart_button" class="product-form__submit button button--full-width button--secondary">Add to cart</button>
-</form>
+{% if template == 'product' and product.metafields.custom.pay_your_price %}
+
+  <form method="post" action="/cart/add" id="pay-your-price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
+    <!-- Hidden input for product variant ID -->
+    <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+
+    <!-- Custom price input -->
+    <input 
+      type="number" 
+      id="price-input" 
+      style="max-width:250px; outline:auto" 
+      class="product-form__submit button button--full-width button--secondary"
+      name="properties[__custom_price]" 
+      placeholder="Enter your price" 
+      step="0.01" 
+    />
+    <div class="payyourprice-form__error-message-wrapper" role="alert" hidden>
+      <span class="svg-wrapper">
+        <svg class="icon icon-error" viewBox="0 0 13 13">
+          <circle cx="6.5" cy="6.5" r="5.5" stroke="#fff" stroke-width="2"></circle>
+          <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width=".7"></circle>
+          <path fill="#fff" d="m5.874 3.528.1 4.044h1.053l.1-4.044zm.627 6.133c.38 0 .68-.288.68-.656s-.3-.656-.68-.656-.681.288-.681.656.3.656.68.656"></path>
+        </svg>
+      </span>
+      <span class="payyourprice-form__error-message"></span>
+    </div>
+    
+    <button type="submit" id="appcart_button" style="width:max-content; min-width:250px; " class="product-form__submit button button--full-width button--secondary">Add to cart</button>
+  
+    </form>
+{% endif %}
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const addToCart =document.getElementById("appcart_button")
-  const form = document.getElementById("price-form");
-  const oldPrice = document.getElementsByClassName("cart-item__old-price")[0];
-  console.log(oldPrice);
-  const officialPrice = document.getElementsByClassName("price-item")[0];
-  const themeButtons = document.getElementsByTagName("product-form")[0];
-  const currencyCode = {{ shop.currencyCode |  json}}; // Example: "USD"
-console.log(currencyCode)
-  // if (themeButtons) themeButtons.style.display = "none";
-
+  const template = "{{ template }}";
+  var payYourPrice = "{{ product.metafields.custom.pay_your_price}};"
+  console.log(template)
+  // Common DOM Elements
+  const form = document.getElementById("pay-your-price-form");
   const priceInput = document.getElementById("price-input");
-  const errorMessageWrapper = document.querySelector(".product-form__error-message-wrapper");
-  const errorMessage = document.querySelector(".product-form__error-message");
+  const errorMessageWrapper = document.querySelector(".payyourprice-form__error-message-wrapper");
+  const errorMessage = document.querySelector(".payyourprice-form__error-message");
 
-
-
-const maxPrice = parseFloat({{ product.price}} / 100);
-const displayMaxPrice  = "{{product.price | money}}";
-const displayMinPrice = "{{ product.metafields.custom.default_price | times: 100 | money }}";
-const defaultPrice = {% if product.metafields.custom.default_price %}{{ product.metafields.custom.default_price }}{% else %}null{% endif %};
-
-
-  // Debugging log to check default price value
-  console.log("Default:", defaultPrice);
-
-  if (defaultPrice) {
-    // Setting the price range display
-    officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
-    
-    form.addEventListener("submit", (event) => {
-      const inputValue = parseFloat(priceInput.value);
-
-      if (isNaN(inputValue) || inputValue < defaultPrice || inputValue > maxPrice) {
-        event.preventDefault();
-        errorMessage.textContent = `Please enter a price between ${defaultPrice} and ${maxPrice}.`;
-        errorMessageWrapper.hidden = false;
-      } else {
-        errorMessageWrapper.hidden = true;
-      }
-    });
-  } else {
-    // Display error message if default price is not set
-    addToCart.style.display = "none";
-    errorMessage.textContent = "Please set the default price from Admin Settings.";
+  // Error handling function
+  function showError(message) {
+    errorMessage.textContent = message;
     errorMessageWrapper.hidden = false;
-    form.addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the form from submitting
-    // You can add any additional logic here if needed
-});
-
   }
-});
-</script>
 
+  // Check for Cart Page
+  // if (template === 'cart') {
+  
+  //   const oldPrices = document.getElementsByClassName("cart-item__discounted-prices");
+  //   const oldPrice = document.getElementsByClassName("product-option");
+  //   Array.from(oldPrice).forEach(price => price.innerHTML = 1000);
+
+
+  //   Array.from(oldPrices).forEach(price => price.style.display = 'none');
+  // }
+//   if (template === "collection") {
+
+
+//   let forms = document.getElementsByClassName("form");
+
+//   // Update the action attribute for each form
+//   for (let formElement of forms) {
+//     formElement.style.display = "none";
+//   }
+// }
+
+
+  // Check for Product Page
+  if (template === 'product' && payYourPrice) {
+    console.log("Pay your price:", payYourPrice);
+    const shareButton = document.querySelector("share-button");
+    if(shareButton && payYourPrice){
+      shareButton.parentNode.insertBefore(form, shareButton);
+
+    document.getElementsByTagName("product-form")[0].style.display = "none";
+
+    const officialPrice = document.querySelector(".price-item");
+    const maxPrice = parseFloat("{{ product.price | divided_by: 100 }}");
+    const displayMaxPrice = "{{ product.price | money }}";
+    const displayMinPrice = "{{ product.metafields.custom.default_price | times: 100 | money }}";
+    const defaultPrice = "{% if product.metafields.custom.default_price %}{{ product.metafields.custom.default_price }}{% else %}null{% endif %}";
+
+    // Handle default price validation
+    if (defaultPrice) {
+      officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
+      form.addEventListener("submit", (event) => {
+        const inputValue = parseFloat(priceInput.value);
+        
+        if (isNaN(inputValue) || inputValue < defaultPrice || inputValue > maxPrice) {
+          event.preventDefault();
+          showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+        } else {
+          errorMessageWrapper.hidden = true;
+        }
+      });
+ } 
+    }
+ 
+      
+}}
+);
+</script>
 
 {% schema %}
 {

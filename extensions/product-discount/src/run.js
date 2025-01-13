@@ -17,8 +17,9 @@ export function run(input) {
   
   const discounts = cartLines.map((line) => {
     const qty = line.quantity;
+    console.log(qty)
     const pricePerUnit = parseFloat(line.cost.amountPerQuantity.amount);
-    const customPricePerUnit = parseFloat(line.__custom_price?.value || 0);
+    const customPricePerUnit = parseFloat(line.__custom_price?.value * qty || 0);
     const discountPerUnit = pricePerUnit - customPricePerUnit;
     const totalDiscountAmount = discountPerUnit * qty;
 
