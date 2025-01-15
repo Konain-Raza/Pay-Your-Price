@@ -4,6 +4,8 @@
   <form method="post" action="/cart/add" id="pay-your-price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
     <!-- Hidden input for product variant ID -->
     <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+    <input type="hidden" name="properties[__isValid]" value="{{ product.metafields.custom.pay_your_price}}" />
+
 
     <!-- Custom price input -->
     <input 
@@ -34,14 +36,15 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const template = "{{ template }}";
-  var payYourPrice = "{{ product.metafields.custom.pay_your_price}};"
+  var payYourPrice = "{{ product.metafields.custom.pay_your_price}}"
   console.log(template)
   // Common DOM Elements
   const form = document.getElementById("pay-your-price-form");
   const priceInput = document.getElementById("price-input");
   const errorMessageWrapper = document.querySelector(".payyourprice-form__error-message-wrapper");
   const errorMessage = document.querySelector(".payyourprice-form__error-message");
-
+const isValid = {% if product.metafields.custom.pay_your_price == true %} true {% else %} false {% endif %};
+console.log("Product is valid", isValid);
   // Error handling function
   function showError(message) {
     errorMessage.textContent = message;
@@ -71,10 +74,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // Check for Product Page
-  if (template === 'product' && payYourPrice) {
+  if (template === 'product' && payYourPrice !== null && payYourPrice !== undefined && payYourPrice === true) {
+
+
+    console.log("This is not a valid pay your price product")
+    document.getElementsByClassName("product-form__quantity")[0].style.display = "none";
+    console.log("IsValid", isValid);
     console.log("Pay your price:", payYourPrice);
     const shareButton = document.querySelector("share-button");
-    if(shareButton && payYourPrice){
+    if(shareButton && !payYourPrice){
       shareButton.parentNode.insertBefore(form, shareButton);
 
     document.getElementsByTagName("product-form")[0].style.display = "none";

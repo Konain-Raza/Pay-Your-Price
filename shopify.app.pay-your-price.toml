@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "5027da63d49ca969b7bbbdf563720986"
-application_url = "https://good-instant-ceo-profession.trycloudflare.com"
+application_url = "https://partially-several-dna-gain.trycloudflare.com"
 embedded = true
 name = "pay-your-price"
 handle = "pay-your-price-1"
@@ -20,9 +20,9 @@ scopes = "read_orders, write_products, write_discounts"
 
 [auth]
 redirect_urls = [
-  "https://good-instant-ceo-profession.trycloudflare.com/auth/callback",
-  "https://good-instant-ceo-profession.trycloudflare.com/auth/shopify/callback",
-  "https://good-instant-ceo-profession.trycloudflare.com/api/auth/callback"
+  "https://partially-several-dna-gain.trycloudflare.com/auth/callback",
+  "https://partially-several-dna-gain.trycloudflare.com/auth/shopify/callback",
+  "https://partially-several-dna-gain.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

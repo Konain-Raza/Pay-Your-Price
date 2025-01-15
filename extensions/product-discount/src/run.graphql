@@ -9,6 +9,12 @@ query RunInput {
       __variant_id: attribute(key: "__variant_id") {
         value
       }
+      __isValid: attribute(key: "__isValid") {
+        value
+      }
+      __qty: attribute(key: "__qty") {
+        value
+      }
       cost {
         amountPerQuantity {
           currencyCode
