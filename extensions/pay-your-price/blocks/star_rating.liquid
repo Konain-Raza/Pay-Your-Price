@@ -31,25 +31,35 @@
     {% for variant in product.variants %}
       {{ variant.id }}:{
         title: "{{ variant.title }}",
+        minPrice: "{{ variant.metafields.pricing.minimum_price }}",
+        maxPrice: "{{ variant.price |  divided_by: 100}}",
+        displayMaxPrice:"{{ variant.price | money}}",
         pay_your_price_enable: "{{ variant.metafields.pricing.pay_your_price_enable }}",
-          suggested_price: "{{ variant.metafields.pricing.suggested_price }}",
-          minimum_price: "{{ variant.metafields.pricing.minimum_price }}"
+        suggested_price: "{{ variant.metafields.pricing.suggested_price | times: 100 | money | default: null}}",
+        displayMinPrice: "{{ variant.metafields.pricing.minimum_price | times: 100 | money  }}"
       }{% if forloop.last == false %},{% endif %}
     {% endfor %}
   };
   console.log("Variants' Pricing Metafields:", variantMetafields);
     // document.getElementById("price-template--19028203733245__main").style.opacity = 0;
     const submitBtn = document.querySelector(".product-form__buttons > .product-form__submit");
-console.log(submitBtn);
+    console.log(submitBtn);
     const form = document.getElementById("pay-your-price-form");
     const priceInput = document.getElementById("price-input");
     const errorMessageWrapper = document.querySelector(".product-form__error-message-wrapper");
     const errorMessage = document.querySelector(".product-form__error-message");
     const isValid = {% if product.metafields.pricing.enable_pay_your_price == true %} true {% else %} false {% endif %};
       console.log("isValid", isValid);
-      const changeData = () => {
-        console.log("Chnage Data funcuton called");
-      const suggestedPrice = {% if product.metafields.pricing.suggested_price %}{{ product.metafields.pricing.suggested_price }}{% else %}null{% endif %};
+      const changeData = (id) => {
+      const minPrice = variantMetafields[id]['minPrice'];
+      const maxPrice = variantMetafields[id]['maxPrice'];
+
+
+        const displayMinPrice = variantMetafields[id]['displayMinPrice'];
+      const displayMaxPrice = variantMetafields[id]['displayMaxPrice'];
+      const suggestedPrice = variantMetafields[id]['suggested_price'];
+      const displaySuggestedPrice = variantMetafields[id]['suggested_price'];
+      // const suggestedPrice = {% if product.metafields.pricing.suggested_price %}{{ product.metafields.pricing.suggested_price }}{% else %}null{% endif %};
       const qtyInput = document.getElementsByClassName("product-form__quantity")[0];
       const priceContainer = document.getElementsByClassName("price__regular")[0];
       // priceContainer.style.display = "none";
@@ -74,17 +84,17 @@ isValidInput.name = "properties[__isValid]";
 isValidInput.value = "{{ product.metafields.custom.pay_your_price }}"; // Use the correct dynamic value
 
 // Append the inputs to the form
-shopifyCartForm.appendChild(customPriceInput);
+buttonsContainer.appendChild(customPriceInput);
 shopifyCartForm.appendChild(isValidInput);
       if (qtyInput) {
         errorMessageWrapper.parentNode.insertBefore(form, errorMessageWrapper);
         const officialPrice = document.querySelector(".price-item");
-        const maxPrice = parseFloat("{{ product.price_max | divided_by: 100 }}");
-        const displayMaxPrice = "{{ product.price_max | money }}";
-        const displayMinPrice = "{{ product.metafields.pricing.min_price | times: 100 | money  | default: null }}";
-        const displaySuggestedPrice = "{{ product.metafields.pricing.suggested_price | times: 100 | money }}";
+
+        // const maxPrice = parseFloat("{{ product.price | divided_by: 100 }}");
+        // const displayMaxPrice = "{{ product.price | money }}";
+        // const displayMinPrice = "{{ product.metafields.pricing.min_price | times: 100 | money  | default: null }}";
+        // const displaySuggestedPrice = "{{ product.metafields.pricing.suggested_price | times: 100 | money }}";
         
-        let minPrice = {% if product.metafields.pricing.min_price %}{{ product.metafields.pricing.min_price }}{% else %}null{% endif %};
         console.log(minPrice);
 
         if (minPrice !== null) {
@@ -111,7 +121,7 @@ shopifyCartForm.appendChild(isValidInput);
 
           // form.appendChild(variantId);
           const inputValue = parseFloat(priceInput.value);
-
+          console.log("Min Price, " + minPrice + "Maxprice: " + maxPrice,"Input: " + inputValue);
           if (isNaN(inputValue) || inputValue < minPrice || inputValue > maxPrice) {
             event.preventDefault();
             showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
@@ -119,9 +129,11 @@ shopifyCartForm.appendChild(isValidInput);
             errorMessageWrapper.hidden = true;
             const customVlaue = document.getElementById("custom_property_price");
             customVlaue.value = inputValue;
+            console.log("Custom Prperty Price, " + customVlaue.value);
             submitBtn.click();
+            return;                                                                                                                                                           
           }
-          changeData();
+     
 
         });
       }
@@ -131,6 +143,7 @@ shopifyCartForm.appendChild(isValidInput);
       errorMessage.textContent = message;
       errorMessageWrapper.hidden = false;
     }
+    const officialPrice = document.querySelector(".price-item");
 
     const variantRadioInputs = document.querySelectorAll('.product-form__input input[type="radio"]');
 
@@ -151,10 +164,28 @@ variantRadios.forEach(radio => {
     if (selectedVariant) {
       console.log("Selected Variant:", selectedVariant);
       document.getElementsByClassName("product-variant-id")[0].value = selectedVariant.id;
-      console.log(variantMetafields[selectedVariant.id]['pay_your_price_enable'])
-      // officialPrice.innerHTML = `${} - ${displayMaxPrice}`;
-      const currentVariant = {{ product.selected_or_first_available_variant | json  }}
-      console.log("Current Variant:", variantMetafields[selectedVariant.id]['pay_your_price_enable']);
+      changeData(selectedVariant.id);
+
+    //   console.log(variantMetafields[selectedVariant.id]['pay_your_price_enable'])
+    //   // officialPrice.innerHTML = `${} - ${displayMaxPrice}`;
+    //   const currentVariant = {{ product.selected_or_first_available_variant | json  }}
+    //   console.log("Current Variant:", variantMetafields[selectedVariant.id]['pay_your_price_enable']);
+    //   const displayMinPrice = variantMetafields[selectedVariant.id]['displayMinPrice'];
+    //   const displayMaxPrice = variantMetafields[selectedVariant.id]['displayMaxPrice'];
+    //   const suggestedPrice = variantMetafields[selectedVariant.id]['suggested_price'];
+    //   const displaySuggestedPrice = variantMetafields[selectedVariant.id]['suggested_price'];
+    //   const officialPrice = document.querySelector(".price-item");
+    // let minPrice = variantMetafields[selectedVariant.id]['minPrice'];
+    //     console.log(minPrice);
+
+    //     if (minPrice !== null) {
+    //       officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
+    //       if(suggestedPrice !== null){
+    //         officialPrice.innerHTML += ` <br> Suggested Price: ${displaySuggestedPrice}`;
+    //       }
+    //     }
+
+// officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
       // officialPrice.innerHTML = `${} - ${displayMaxPrice}`;
       const selectedVariantLiquid = {{ product.selected_variant | json }};
       console.log("Selected Variant by Liquid:", selectedVariantLiquid );
@@ -167,7 +198,9 @@ variantRadios.forEach(radio => {
 
 
     if (template === 'product' && isValid) {
-      changeData();
+      const currenctProduct  = {{ product.selected_or_first_available_variant.id }};
+      console.log("Current Product:", currenctProduct);
+      changeData(currenctProduct);
      
     }
   });

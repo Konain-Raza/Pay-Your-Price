@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "5027da63d49ca969b7bbbdf563720986"
-application_url = "https://donor-filing-fan-anticipated.trycloudflare.com"
+application_url = "https://loving-framed-index-gamma.trycloudflare.com"
 embedded = true
 name = "pay-your-price"
 handle = "pay-your-price-1"
@@ -20,9 +20,9 @@ scopes = "read_orders,write_discounts,write_products"
 
 [auth]
 redirect_urls = [
-  "https://donor-filing-fan-anticipated.trycloudflare.com/auth/callback",
-  "https://donor-filing-fan-anticipated.trycloudflare.com/auth/shopify/callback",
-  "https://donor-filing-fan-anticipated.trycloudflare.com/api/auth/callback"
+  "https://loving-framed-index-gamma.trycloudflare.com/auth/callback",
+  "https://loving-framed-index-gamma.trycloudflare.com/auth/shopify/callback",
+  "https://loving-framed-index-gamma.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
