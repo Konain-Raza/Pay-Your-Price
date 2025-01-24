@@ -2,13 +2,8 @@
 {% if template == 'product' and product.metafields.custom.pay_your_price %}
 
   <form id="pay-your-price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
-    <!-- Hidden input for product variant ID -->
-
-
-    <input type="hidden" name="properties[__isValid]" value="{{ product.metafields.custom.pay_your_price}}" />
-
-
-    <!-- Custom price input -->
+ 
+    
   <input 
       type="number" 
       id="price-input" 
@@ -26,7 +21,10 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+
     const template = "{{ template }}";
+    // const settings = "{{ settings }}";
+    // console.log("Settings: " + JSON.stringify(settings));
     const variantMetafields = {
     {% for variant in product.variants %}
       {{ variant.id }}:{
@@ -40,6 +38,12 @@
       }{% if forloop.last == false %},{% endif %}
     {% endfor %}
   };
+
+  const showSuggestedPrice = "{{ block.settings.show_suggested_price}}";
+  const suggestedPriceLabel = "{{ block.settings.suggested_price_label }}";
+
+  console.log("Show Suggested Price: " +  showSuggestedPrice);
+  console.log("Suggested Price Label: " + suggestedPriceLabel);
   console.log("Variants' Pricing Metafields:", variantMetafields);
     // document.getElementById("price-template--19028203733245__main").style.opacity = 0;
     const submitBtn = document.querySelector(".product-form__buttons > .product-form__submit");
@@ -71,36 +75,41 @@ shopifyCartForm.style.display = "none"; //
       console.log(shopifyCartForm );
 
 // Create the first hidden input element
-const customPriceInput = document.createElement("input");
-customPriceInput.type = "hidden";
-customPriceInput.name="properties[__custom_price]" 
-customPriceInput.id="custom_property_price" 
-customPriceInput.value = 0; // Use the correct dynamic value
+let customPriceInput = document.getElementById("custom_property_price");
+if (!customPriceInput) {
+  customPriceInput = document.createElement("input");
+  customPriceInput.type = "hidden";
+  customPriceInput.name = "properties[__custom_price]";
+  customPriceInput.id = "custom_property_price";
+  customPriceInput.value = 0;
+  shopifyCartForm.appendChild(customPriceInput);
+} else {
+  customPriceInput.value = 0;
+}
 
-// Create the second hidden input element
-const isValidInput = document.createElement("input");
-isValidInput.type = "hidden";
-isValidInput.name = "properties[__isValid]";
-isValidInput.value = "{{ product.metafields.custom.pay_your_price }}"; // Use the correct dynamic value
+let isValidInput = document.querySelector('product-form .form input[name="properties[__isValid]"]');
+console.log("isValidInput: " + isValidInput);
+if (!isValidInput) {
+  isValidInput = document.createElement("input");
+  isValidInput.type = "hidden";
+  isValidInput.name = "properties[__isValid]";
+  isValidInput.value = variantMetafields[id]['pay_your_price_enable'];
+  shopifyCartForm.appendChild(isValidInput);
+} else {
+  isValidInput.value = true;;
+}
 
-// Append the inputs to the form
-buttonsContainer.appendChild(customPriceInput);
-shopifyCartForm.appendChild(isValidInput);
       if (qtyInput) {
         errorMessageWrapper.parentNode.insertBefore(form, errorMessageWrapper);
         const officialPrice = document.querySelector(".price-item");
 
-        // const maxPrice = parseFloat("{{ product.price | divided_by: 100 }}");
-        // const displayMaxPrice = "{{ product.price | money }}";
-        // const displayMinPrice = "{{ product.metafields.pricing.min_price | times: 100 | money  | default: null }}";
-        // const displaySuggestedPrice = "{{ product.metafields.pricing.suggested_price | times: 100 | money }}";
-        
+  
         console.log(minPrice);
 
         if (minPrice !== null) {
           officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
-          if(suggestedPrice !== null){
-            officialPrice.innerHTML += ` <br> Suggested Price: ${displaySuggestedPrice}`;
+          if(showSuggestedPrice === "true") {
+            officialPrice.innerHTML += ` <br> ${suggestedPriceLabel}: ${displaySuggestedPrice}`;
           }
         } else {
           const addToCartButton = document.querySelector("#appcart_button");
@@ -125,11 +134,17 @@ shopifyCartForm.appendChild(isValidInput);
           if (isNaN(inputValue) || inputValue < minPrice || inputValue > maxPrice) {
             event.preventDefault();
             showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+            shopifyCartForm.addEventListener('submit', function(event) {
+  // Prevent form submission
+  event.preventDefault();
+
+  // You can add additional logic here if needed
+  console.log('Form submission has been prevented');
+});
           } else {
             errorMessageWrapper.hidden = true;
             const customVlaue = document.getElementById("custom_property_price");
             customVlaue.value = inputValue;
-            console.log("Custom Prperty Price, " + customVlaue.value);
             submitBtn.click();
             return;                                                                                                                                                           
           }
@@ -215,10 +230,17 @@ variantRadios.forEach(radio => {
   "target": "body",
   "settings": [
     {
-      "type": "product",
-      "id": "product",
-      "label": "Product",
-      "autofill": true
+    "type": "checkbox",
+    "id": "show_suggested_price",
+    "label": "Show Suggested Price",
+    "info": "Enable this option to display the suggested price on your product pages.",
+    "default": false
+    },
+    {
+      "type": "text",
+      "id": "suggested_price_label",
+      "label": "Suggested Price Label",
+      "default": "Suggested Price"
     }
   ]
 }

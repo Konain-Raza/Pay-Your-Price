@@ -18,10 +18,10 @@ export function run(input) {
   const discounts = cartLines.map((line) => {
     console.log(`Processing line: ${JSON.stringify(line)}`);
 
-    const qtyMetafield = line?.__qty?.value;
+    // const qtyMetafield = line?.__qty?.value;
     const qty = line.quantity;
 
-    console.log(`Line ID: ${line.id}, __qty Metafield: ${qtyMetafield}, Final Qty: ${qty}`);
+    console.log(`Line ID: ${line.id}, Final Qty: ${qty}`);
 
     const isValid = line?.__isValid?.value === "true"; 
 
@@ -30,7 +30,7 @@ export function run(input) {
       return null;
     }
 
-    const pricePerUnit = parseFloat(line.cost.amountPerQuantity.amount);
+    const pricePerUnit = 1000;
     const customPricePerUnit = parseFloat(line.__custom_price?.value || 0);
     const discountPerUnit = pricePerUnit - customPricePerUnit;
     const totalDiscountAmount = discountPerUnit * qty;
