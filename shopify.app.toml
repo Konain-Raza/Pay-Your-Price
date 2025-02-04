@@ -1,0 +1,37 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "7fcf0d670b1b54d30d42ebda57866784"
+application_url = "https://yesterday-biodiversity-pull-subscription.trycloudflare.com"
+embedded = true
+name = "Offer Your Price"
+handle = "offer-your-price"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_cart_transforms,read_products,write_products"
+
+[auth]
+redirect_urls = [
+  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/auth/callback",
+  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/auth/shopify/callback",
+  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+include_config_on_deploy = true
+dev_store_url = "konainraza.myshopify.com"
+automatically_update_urls_on_dev = true

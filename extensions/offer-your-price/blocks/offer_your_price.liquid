@@ -1,0 +1,285 @@
+{% if template == 'product' %}
+
+  <form id="offer-your-price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
+    <div id="price-options-container"></div>  
+    <input 
+      type="number" 
+      id="price-input" 
+      style=" outline:auto" 
+      class="product-form__submit button button--full-width button--secondary"
+      name="properties[__custom_price]" 
+      placeholder="Enter your price" 
+      step="0.01" 
+    />
+    <button type="submit" id="appcart_button" class="product-form__submit button button--full-width button--secondary">Add to cart</button>
+  </form>
+  
+
+{% endif %}
+<link rel="stylesheet" type="text/css" href="/assets/styles.css">
+
+
+<script>
+  console.log("Offer Your Price is Running");
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const template = "{{ template }}";
+    console.log("Template: " +  template);
+    const variantMetafields = {
+      {% for variant in product.variants %}
+        {{ variant.id }}: {
+          orignalPrice: "{{variant.price |  money}}",
+          salePrice:"{{variant.compare_at_price}}",
+          minPrice: "{{ variant.metafields.objects.minimum_acceptable_price }}",
+          maxPrice: "{{ variant.metafields.objects.maximum_acceptable_price }}",
+          suggestedPrice: "{{ variant.metafields.objects.suggested_price }}",
+          payYourPriceEnable: {{ variant.metafields.objects.enable_offer_your_price | default: false }},
+          enablePayYourPriceOption: {{ variant.metafields.objects.enable_price_options | default: false }},
+          priceOptions: {{ variant.metafields.objects.predefined_price_options | default: "[]" }},
+          displayMaxPrice: "{{ variant.metafields.objects.maximum_acceptable_price | times: 100 | money }}",
+          displaySuggestedPrice: "{{ variant.metafields.objects.suggested_price | times: 100 | money }}",
+          displayMinPrice: "{{ variant.metafields.objects.minimum_acceptable_price | times: 100 | money }}"
+        }{% if forloop.last == false %},{% endif %}
+      {% endfor %}
+    };
+    
+    console.log(variantMetafields);  // Console log to check variant data
+
+    const showSuggestedPrice = "{{ block.settings.show_suggested_price}}";
+
+
+    const suggestedPriceLabel = "{{ block.settings.suggested_price_label }}";
+    const addToCartButton = document.querySelector("#appcart_button");
+    const submitBtn = document.querySelector(".product-form__buttons > .product-form__submit");
+    const form = document.getElementById("offer-your-price-form");
+    let priceInput = document.getElementById("price-input");
+    const errorMessageWrapper = document.querySelector(".product-form__error-message-wrapper");
+    const errorMessage = document.querySelector(".product-form__error-message");
+console.log({{product | json}})
+    const updateData = (id) => {
+      console.log("Variant Changes") ;
+      const isEnable  = variantMetafields[id]['payYourPriceEnable'];
+      const minPrice = variantMetafields[id]['minPrice'];
+      const maxPrice = variantMetafields[id]['maxPrice'];
+      const displayMinPrice = variantMetafields[id]['displayMinPrice'];
+      const displayMaxPrice = variantMetafields[id]['displayMaxPrice'];
+      const suggestedPrice = variantMetafields[id]['suggestedPrice'];
+      const displaySuggestedPrice = variantMetafields[id]['displaySuggestedPrice'];
+      const priceOptionsContainer = document.querySelector("#price-options-container");
+      const qtyInput = document.getElementsByClassName("product-form__quantity")[0];
+      const priceContainer = document.getElementsByClassName("price__regular")[0];
+      const shopifyCartForm = document.querySelector('product-form .form');
+      const officialPrice = document.querySelector(".price-item");
+      console.log("isEnabled:", isEnable);  // Debugging log
+      errorMessageWrapper.hidden = true;
+      if (isEnable) {
+        shopifyCartForm.style.display = "none";
+
+        let customPriceInput = document.getElementById("custom_property_price");
+        if (!customPriceInput) {
+          customPriceInput = document.createElement("input");
+          customPriceInput.type = "hidden";
+          customPriceInput.name = "properties[__custom_price]";
+          customPriceInput.id = "custom_property_price";
+          customPriceInput.value = 0;
+          shopifyCartForm.appendChild(customPriceInput);
+        } else {
+          customPriceInput.value = 0;
+        }
+
+        let isValidInput = document.querySelector('product-form .form input[name="properties[__isValid]"]');
+        if (!isValidInput) {
+          isValidInput = document.createElement("input");
+          isValidInput.type = "hidden";
+          isValidInput.name = "properties[__isValid]";
+          // isValidInput.value = variantMetafields[id]['pay_your_price_enable'];
+          isValidInput.value = variantMetafields[id]['payYourPriceEnable'];
+
+          shopifyCartForm.appendChild(isValidInput);
+        } else {
+          isValidInput.value = true;
+        }
+
+        if (qtyInput) {
+          errorMessageWrapper.parentNode.insertBefore(form, errorMessageWrapper);
+
+
+          if (minPrice.trim().length > 0 && maxPrice.trim().length > 0) {
+            officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
+            if (showSuggestedPrice === "true" && parseFloat(variantMetafields[id].suggestedPrice) > 0) {
+              officialPrice.innerHTML += ` <br> ${suggestedPriceLabel}: ${displaySuggestedPrice}`;
+            }
+            if (variantMetafields[id].enablePayYourPriceOption && variantMetafields[id].priceOptions.length > 0 && variantMetafields[id].minPrice.trim().length > 0 ) {
+              console.log("Price Options Available"); // Debugging log
+              priceInput.style.display = 'none';
+              addToCartButton.style.display = 'block';
+              priceOptionsContainer.innerHTML = "";
+
+              variantMetafields[id].priceOptions.forEach((option, index) => {
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'priceOption';
+                input.id = `price-option-${index}`;
+                input.value = option;
+                input.style.display = 'none';
+
+                const label = document.createElement('label');
+                label.setAttribute('for', input.id);
+                label.classList.add('price-pill');
+                label.textContent = option;
+
+                input.addEventListener('change', (event) => {
+                  console.log("Selected Option: " + event.target.value); // Debugging log
+                  priceInput.style.display = 'none';
+                });
+
+                priceOptionsContainer.appendChild(input);
+                priceOptionsContainer.appendChild(label);
+              });
+
+              const otherInput = document.createElement('input');
+              otherInput.type = 'radio';
+              otherInput.name = 'priceOption';
+              otherInput.id = 'price-option-other';
+              otherInput.value = 'other';
+              otherInput.style.display = 'none';
+
+              const otherLabel = document.createElement('label');
+              otherLabel.setAttribute('for', otherInput.id);
+              otherLabel.classList.add('price-pill');
+              otherLabel.textContent = 'Other';
+              otherInput.addEventListener('change', () => {
+                priceInput.style.display = 'block';
+              });
+              priceOptionsContainer.appendChild(otherInput);
+              priceOptionsContainer.appendChild(otherLabel);
+            } else {
+              priceInput.style.display = 'block';
+              addToCartButton.style.display = 'block';
+              priceOptionsContainer.innerHTML = "";
+            }
+          } else {
+            officialPrice.innerHTML = variantMetafields[id]['orignalPrice']
+           showError("Set a min or max price for this product in the admin panel.");
+
+            if (priceInput && addToCartButton) {
+              priceOptionsContainer.innerHTML = "";
+              addToCartButton.style.display = 'none';
+            }
+          }
+
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            let inputValue = false;
+            if (variantMetafields[id].enablePayYourPriceOption && variantMetafields[id].priceOptions.length) {
+              const selectedOption = document.querySelector('input[name="priceOption"]:checked');
+              
+              if (selectedOption?.value === "other") {
+                  inputValue = priceInput.value.trim() ? parseFloat(priceInput.value) : 0;
+                  isValidInput.value = inputValue > 0;
+              } else {
+                  inputValue = parseFloat(selectedOption?.value) || 0;
+                  isValidInput.value = !!selectedOption;
+              }
+            } else {
+                inputValue = priceInput.value.trim() ? parseFloat(priceInput.value) : 0;
+                isValidInput.value = inputValue > 0;
+            }
+
+            if (isNaN(inputValue) || inputValue < minPrice || inputValue > maxPrice) {
+              event.preventDefault();
+              showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+            } else {
+              errorMessageWrapper.hidden = true;
+              const customValue = document.getElementById("custom_property_price");
+              customValue.value = inputValue;
+              submitBtn.click();
+              return;
+            }
+          });
+        }
+      }
+      else{
+        officialPrice.innerHTML = variantMetafields[id]['orignalPrice'];
+        shopifyCartForm.style.display = "block";
+        addToCartButton.style.display = 'none';
+        priceInput.style.display = "none";
+        errorMessageWrapper.hidden = true;
+        errorMessage.textContent = "";
+        priceOptionsContainer.innerHTML = "";
+        console.log("Is not a valid");
+      }
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessageWrapper.hidden = false;
+    }
+    const selectElement = document.querySelectorAll('.select__select');
+    const variantRadios = document.querySelectorAll('input[type="radio"]');
+
+    // const variantRadios = document.querySelectorAll('input[type="radio"]');
+
+variantRadios.forEach(radio => {
+  radio.addEventListener('change', (event) => {
+    event.stopPropagation();
+    const selectedValues = [];
+
+    const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
+
+    checkedRadios.forEach(radio => {
+      selectedValues.push(radio.value);
+    });
+
+    const combinedValue = selectedValues.length > 1 ? selectedValues.join(' / ') : selectedValues[0];
+
+    console.log(combinedValue);
+
+    const variantId = event.target.getAttribute('value');
+    const variants = {{ product.variants | json }};
+    console.log(variants);
+
+    const selectedVariant = variants.find(variant => variant.public_title.trim() == combinedValue.trim());
+
+    if (selectedVariant) {
+      console.log("Selected variant: " + selectedVariant.id);
+      console.log(combinedValue.trim());
+      document.getElementsByClassName("product-variant-id")[0].value = selectedVariant.id;
+      updateData(selectedVariant.id);
+    }
+  });
+});
+
+
+    {% if template == 'product' %}
+      console.log(variantRadios);
+      const currentProduct = {{ product.selected_or_first_available_variant.id }};
+      priceInput.style.display = "none";
+      updateData(currentProduct); 
+    {% endif %}
+  });
+</script>
+{{ 'styles.css' | asset_url | stylesheet_tag }}
+
+
+{% schema %}
+{
+  "name": "Offer Your Price",
+  "target": "body",
+  "settings": [
+    {
+    "type": "checkbox",
+    "id": "show_suggested_price",
+    "label": "Show Suggested Price",
+    "info": "Enable this option to display the suggested price on your product pages."
+    },
+    {
+      "type": "text",
+      "id": "suggested_price_label",
+      "label": "Suggested Price Label",
+      "default": "Suggested Price"
+    }
+  ]
+}
+{% endschema %}

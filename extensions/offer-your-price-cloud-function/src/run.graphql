@@ -1,0 +1,23 @@
+query GetCartData {
+  cart {
+    lines {
+      id
+      quantity
+      __custom_price: attribute(key: "__custom_price") {
+        value
+      }
+      __variant_id: attribute(key: "__variant_id") {
+        value
+      }
+      __isValid: attribute(key: "__isValid") {
+        value
+      }
+      cost {
+        amountPerQuantity {
+          currencyCode
+          amount
+        }
+      }
+    }
+  }
+}

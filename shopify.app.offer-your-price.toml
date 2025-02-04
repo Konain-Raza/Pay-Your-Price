@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "2f8e0452eb45dd1cab7cde5568b1ed2d"
+application_url = "https://hazard-buddy-take-metallica.trycloudflare.com"
+embedded = true
+name = "Offer Your Price"
+handle = "offer-your-price"
+
+[build]
+include_config_on_deploy = true
+dev_store_url = "konainraza.myshopify.com"
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-01"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_cart_transforms,read_products,write_products"
+
+[auth]
+redirect_urls = [
+  "https://hazard-buddy-take-metallica.trycloudflare.com/auth/callback",
+  "https://hazard-buddy-take-metallica.trycloudflare.com/auth/shopify/callback",
+  "https://hazard-buddy-take-metallica.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false

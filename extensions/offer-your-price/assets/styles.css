@@ -1,0 +1,24 @@
+#price-options-container {
+  padding: 1rem;
+  margin-bottom: 10px;
+}
+.price-pill {
+  background-color: #f0f0f0;
+  padding: 10px 20px; /* Increased padding for bigger pill */
+  border-radius: 30px; /* Larger border radius for a more rounded pill */
+  font-size: 16px; /* Larger font size */
+  cursor: pointer;
+  margin-right: 15px; /* Slightly larger margin */
+  transition:
+  background-color 0.3s,
+  color 0.3s;
+}
+
+.price-pill:hover {
+  background-color: #e0e0e0;
+}
+
+#price-options-container input[type="radio"]:checked + label {
+  background-color: #000;
+  color: #fff;
+}
