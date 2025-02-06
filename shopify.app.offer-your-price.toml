@@ -1,14 +1,14 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "2f8e0452eb45dd1cab7cde5568b1ed2d"
-application_url = "https://hazard-buddy-take-metallica.trycloudflare.com"
+client_id = "82d87b66d6e06b37d858bce9733f7fc1"
+application_url = "https://correctly-activists-minimize-tribe.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
-handle = "offer-your-price"
+handle = "offer-your-price-3"
 
 [build]
 include_config_on_deploy = true
-dev_store_url = "konainraza.myshopify.com"
+dev_store_url = "bulk-store-dev.myshopify.com"
 automatically_update_urls_on_dev = true
 
 [webhooks]
@@ -16,13 +16,13 @@ api_version = "2025-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_cart_transforms,read_products,write_products"
+scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://hazard-buddy-take-metallica.trycloudflare.com/auth/callback",
-  "https://hazard-buddy-take-metallica.trycloudflare.com/auth/shopify/callback",
-  "https://hazard-buddy-take-metallica.trycloudflare.com/api/auth/callback"
+  "https://correctly-activists-minimize-tribe.trycloudflare.com/auth/callback",
+  "https://correctly-activists-minimize-tribe.trycloudflare.com/auth/shopify/callback",
+  "https://correctly-activists-minimize-tribe.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

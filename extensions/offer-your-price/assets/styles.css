@@ -1,24 +1,80 @@
+#offer-your-price-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* align-items: center;
+  justify-content: center; */
+  margin: 0 auto;
+}
+
+#price-input {
+  text-decoration: none !important;
+  /* min-width: 180px !important; */
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  cursor: text;
+}
+
+#price-input::-webkit-outer-spin-button,
+#price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#price-input-options-container input[type="radio"]:checked  {
+  background-color: #000;
+  color: #fff;
+}
+.price-pill.selected {
+  background-color: #000;
+  color: #fff;
+}
 #price-options-container {
   padding: 1rem;
   margin-bottom: 10px;
+  /* display: flex; */
+  flex-wrap: wrap;
+  justify-content: center;
 }
+
 .price-pill {
-  background-color: #f0f0f0;
-  padding: 10px 20px; /* Increased padding for bigger pill */
-  border-radius: 30px; /* Larger border radius for a more rounded pill */
-  font-size: 16px; /* Larger font size */
+  background: (var(--color-foreground));
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 16px;
   cursor: pointer;
-  margin-right: 15px; /* Slightly larger margin */
-  transition:
-  background-color 0.3s,
-  color 0.3s;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  white-space: nowrap;
 }
 
 .price-pill:hover {
   background-color: #e0e0e0;
 }
 
-#price-options-container input[type="radio"]:checked + label {
+#price-input-options-container input[type="radio"]:checked + label {
   background-color: #000;
   color: #fff;
+}
+
+
+
+@media screen and (max-width: 600px) {
+  .price-pill {
+    padding: 8px 16px;
+    font-size: 14px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  #price-options-container {
+    display: flex;
+    padding: 0.5rem;
+  }
+}
+
+.underline{
+  text-decoration: line-through;
+  opacity: 0.6;
+  cursor: pointer;
 }

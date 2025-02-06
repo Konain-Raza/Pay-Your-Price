@@ -1,8 +1,8 @@
 {% if template == 'product' %}
 
-  <form id="offer-your-price-form" style="width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto;">
+  <form id="offer-your-price-form">
     <div id="price-options-container"></div>  
-    <input 
+      <input 
       type="number" 
       id="price-input" 
       style=" outline:auto" 
@@ -10,8 +10,8 @@
       name="properties[__custom_price]" 
       placeholder="Enter your price" 
       step="0.01" 
-    />
-    <button type="submit" id="appcart_button" class="product-form__submit button button--full-width button--secondary">Add to cart</button>
+      />
+      <button type="submit" id="appcart_button" class="product-form__submit button button--full-width button--secondary">Add to cart</button>
   </form>
   
 
@@ -29,14 +29,16 @@
     const variantMetafields = {
       {% for variant in product.variants %}
         {{ variant.id }}: {
+          available: {{variant.available}},
           orignalPrice: "{{variant.price |  money}}",
-          salePrice:"{{variant.compare_at_price}}",
+          salePrice: "{{ variant.compare_at_price | divided_by: 100.0 }}",
+          displaySalePrice: "{{ variant.compare_at_price |  money }}",
           minPrice: "{{ variant.metafields.objects.minimum_acceptable_price }}",
           maxPrice: "{{ variant.metafields.objects.maximum_acceptable_price }}",
           suggestedPrice: "{{ variant.metafields.objects.suggested_price }}",
           payYourPriceEnable: {{ variant.metafields.objects.enable_offer_your_price | default: false }},
           enablePayYourPriceOption: {{ variant.metafields.objects.enable_price_options | default: false }},
-          priceOptions: {{ variant.metafields.objects.predefined_price_options | default: "[]" }},
+          priceOptions: {{ variant.metafields.objects.predefined_price_option | default: "[]" }},
           displayMaxPrice: "{{ variant.metafields.objects.maximum_acceptable_price | times: 100 | money }}",
           displaySuggestedPrice: "{{ variant.metafields.objects.suggested_price | times: 100 | money }}",
           displayMinPrice: "{{ variant.metafields.objects.minimum_acceptable_price | times: 100 | money }}"
@@ -47,8 +49,6 @@
     console.log(variantMetafields);  // Console log to check variant data
 
     const showSuggestedPrice = "{{ block.settings.show_suggested_price}}";
-
-
     const suggestedPriceLabel = "{{ block.settings.suggested_price_label }}";
     const addToCartButton = document.querySelector("#appcart_button");
     const submitBtn = document.querySelector(".product-form__buttons > .product-form__submit");
@@ -56,12 +56,15 @@
     let priceInput = document.getElementById("price-input");
     const errorMessageWrapper = document.querySelector(".product-form__error-message-wrapper");
     const errorMessage = document.querySelector(".product-form__error-message");
-console.log({{product | json}})
     const updateData = (id) => {
       console.log("Variant Changes") ;
+      const isAvailable = variantMetafields[id]['available'];
+      // const orignalPrice = variantMetafields[id]['orignalPrice'];
       const isEnable  = variantMetafields[id]['payYourPriceEnable'];
       const minPrice = variantMetafields[id]['minPrice'];
       const maxPrice = variantMetafields[id]['maxPrice'];
+      const comparePrice = variantMetafields[id]['salePrice'];
+      const displayComparePrice = variantMetafields[id]['displaySalePrice'];
       const displayMinPrice = variantMetafields[id]['displayMinPrice'];
       const displayMaxPrice = variantMetafields[id]['displayMaxPrice'];
       const suggestedPrice = variantMetafields[id]['suggestedPrice'];
@@ -70,11 +73,23 @@ console.log({{product | json}})
       const qtyInput = document.getElementsByClassName("product-form__quantity")[0];
       const priceContainer = document.getElementsByClassName("price__regular")[0];
       const shopifyCartForm = document.querySelector('product-form .form');
-      const officialPrice = document.querySelector(".price-item");
+      let officialPrice = document.querySelector(".price-item.price-item--regular");;
+      const salePrice = document.querySelector(".price__sale");
+      const saleBadge = document.querySelector(".price__badge-sale");
+      const soldoutBadge = document.querySelector(".price__badge-sold-out");
+      soldoutBadge.style.display = "none";
+      // if(saleBadge){
+      //   salePrice.style.display = "none";
+      //   saleBadge.style.display = "none";
+      // }
+      if(!isAvailable){
+        soldoutBadge.style.display = "inline-block";
+      }
       console.log("isEnabled:", isEnable);  // Debugging log
       errorMessageWrapper.hidden = true;
-      if (isEnable) {
+      if (isEnable && isAvailable) {
         shopifyCartForm.style.display = "none";
+        shopifyCartForm.appendChild(form);
 
         let customPriceInput = document.getElementById("custom_property_price");
         if (!customPriceInput) {
@@ -93,7 +108,6 @@ console.log({{product | json}})
           isValidInput = document.createElement("input");
           isValidInput.type = "hidden";
           isValidInput.name = "properties[__isValid]";
-          // isValidInput.value = variantMetafields[id]['pay_your_price_enable'];
           isValidInput.value = variantMetafields[id]['payYourPriceEnable'];
 
           shopifyCartForm.appendChild(isValidInput);
@@ -105,7 +119,8 @@ console.log({{product | json}})
           errorMessageWrapper.parentNode.insertBefore(form, errorMessageWrapper);
 
 
-          if (minPrice.trim().length > 0 && maxPrice.trim().length > 0) {
+          if (parseFloat(minPrice.trim()) > 0 && parseFloat(maxPrice.trim()) > 0 && parseFloat(maxPrice) > parseFloat(minPrice)) {
+            salePrice.style.display = "none";
             officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
             if (showSuggestedPrice === "true" && parseFloat(variantMetafields[id].suggestedPrice) > 0) {
               officialPrice.innerHTML += ` <br> ${suggestedPriceLabel}: ${displaySuggestedPrice}`;
@@ -115,8 +130,8 @@ console.log({{product | json}})
               priceInput.style.display = 'none';
               addToCartButton.style.display = 'block';
               priceOptionsContainer.innerHTML = "";
-
-              variantMetafields[id].priceOptions.forEach((option, index) => {
+              const uniquePriceOptions = new Set(variantMetafields[id].priceOptions);
+              uniquePriceOptions.forEach((option, index) => {
                 const input = document.createElement('input');
                 input.type = 'radio';
                 input.name = 'priceOption';
@@ -129,9 +144,10 @@ console.log({{product | json}})
                 label.classList.add('price-pill');
                 label.textContent = option;
 
-                input.addEventListener('change', (event) => {
-                  console.log("Selected Option: " + event.target.value); // Debugging log
+                input.addEventListener('change', () => {
                   priceInput.style.display = 'none';
+                  priceOptionsContainer.querySelectorAll('.price-pill').forEach(label => label.classList.remove('selected'));
+                  label.classList.add('selected');
                 });
 
                 priceOptionsContainer.appendChild(input);
@@ -150,7 +166,11 @@ console.log({{product | json}})
               otherLabel.classList.add('price-pill');
               otherLabel.textContent = 'Other';
               otherInput.addEventListener('change', () => {
-                priceInput.style.display = 'block';
+                priceInput.style.display = 'block';  
+                priceOptionsContainer.querySelectorAll('.price-pill').forEach(label => {
+                  label.classList.remove('selected');  
+                });
+                otherLabel.classList.add('selected');
               });
               priceOptionsContainer.appendChild(otherInput);
               priceOptionsContainer.appendChild(otherLabel);
@@ -160,8 +180,18 @@ console.log({{product | json}})
               priceOptionsContainer.innerHTML = "";
             }
           } else {
-            officialPrice.innerHTML = variantMetafields[id]['orignalPrice']
-           showError("Set a min or max price for this product in the admin panel.");
+            salePrice.style.display = "none";
+            if (parseFloat(comparePrice) > 0) {
+              officialPrice.innerHTML = `<span class="underline">${displayComparePrice}</span> ${variantMetafields[id]['orignalPrice']}`;
+              document.querySelector(".price__badge-sale").style.display = "inline-block";
+              
+            } else {
+                officialPrice.innerHTML = `${variantMetafields[id]['orignalPrice']}`;
+                document.querySelector(".price__badge-sale").style.display = "none";
+            }
+
+
+            showError("Please set valid min and max prices in the admin panel. Max price should be less than min price.");
 
             if (priceInput && addToCartButton) {
               priceOptionsContainer.innerHTML = "";
@@ -201,7 +231,15 @@ console.log({{product | json}})
         }
       }
       else{
-        officialPrice.innerHTML = variantMetafields[id]['orignalPrice'];
+        if (parseFloat(comparePrice) > 0) {
+          officialPrice.innerHTML = `<span class="underline">${displayComparePrice}</span> ${variantMetafields[id]['orignalPrice']}`;
+          document.querySelector(".price__badge-sale").style.display = "inline-block";
+          
+        } else {
+            officialPrice.innerHTML = `${variantMetafields[id]['orignalPrice']}`;
+            document.querySelector(".price__badge-sale").style.display = "none";
+        }
+
         shopifyCartForm.style.display = "block";
         addToCartButton.style.display = 'none';
         priceInput.style.display = "none";
@@ -219,42 +257,42 @@ console.log({{product | json}})
     const selectElement = document.querySelectorAll('.select__select');
     const variantRadios = document.querySelectorAll('input[type="radio"]');
 
-    // const variantRadios = document.querySelectorAll('input[type="radio"]');
+    variantRadios.forEach(radio => {
+      radio.addEventListener('change', (event) => {
+        console.log({{product | json}});
+        event.stopPropagation();
+        const selectedValues = [];
 
-variantRadios.forEach(radio => {
-  radio.addEventListener('change', (event) => {
-    event.stopPropagation();
-    const selectedValues = [];
+        const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
 
-    const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
+        checkedRadios.forEach(radio => {
+          selectedValues.push(radio.value);
+        });
 
-    checkedRadios.forEach(radio => {
-      selectedValues.push(radio.value);
+        const combinedValue = selectedValues.length > 1 ? selectedValues.join(' / ') : selectedValues[0];
+
+        console.log(combinedValue);
+
+        const variantId = event.target.getAttribute('value');
+        const variants = {{ product.variants | json }};
+        console.log(variants);
+
+        const selectedVariant = variants.find(variant => variant.public_title.trim() == combinedValue.trim());
+
+        if (selectedVariant) {
+          console.log("Selected variant: " + selectedVariant.id);
+          console.log(combinedValue.trim());
+          document.querySelector('input[name="id"]').value = selectedVariant.id;
+          updateData(selectedVariant.id);
+        }
+      });
     });
-
-    const combinedValue = selectedValues.length > 1 ? selectedValues.join(' / ') : selectedValues[0];
-
-    console.log(combinedValue);
-
-    const variantId = event.target.getAttribute('value');
-    const variants = {{ product.variants | json }};
-    console.log(variants);
-
-    const selectedVariant = variants.find(variant => variant.public_title.trim() == combinedValue.trim());
-
-    if (selectedVariant) {
-      console.log("Selected variant: " + selectedVariant.id);
-      console.log(combinedValue.trim());
-      document.getElementsByClassName("product-variant-id")[0].value = selectedVariant.id;
-      updateData(selectedVariant.id);
-    }
-  });
-});
 
 
     {% if template == 'product' %}
       console.log(variantRadios);
-      const currentProduct = {{ product.selected_or_first_available_variant.id }};
+      console.log({{product.available}});
+      const currentProduct = document.querySelector('input[name="id"]').value;
       priceInput.style.display = "none";
       updateData(currentProduct); 
     {% endif %}
