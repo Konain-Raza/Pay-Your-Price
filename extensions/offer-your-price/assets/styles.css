@@ -2,8 +2,6 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  /* align-items: center;
-  justify-content: center; */
   margin: 0 auto;
 }
 
@@ -22,23 +20,23 @@
 }
 
 #price-input-options-container input[type="radio"]:checked  {
-  background-color: #000;
-  color: #fff;
+  background-color: var(--price-options-background-color);
+  color: var(--price-options-text-color);
 }
 .price-pill.selected {
-  background-color: #000;
-  color: #fff;
+  color: var(--price-options-background-color);
+  background-color: var(--price-options-text-color);
 }
 #price-options-container {
   padding: 1rem;
   margin-bottom: 10px;
-  /* display: flex; */
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .price-pill {
-  background: (var(--color-foreground));
+  background-color: var(--price-options-background-color);
+  color: var(--price-options-text-color);
   padding: 10px 20px;
   border-radius: 30px;
   font-size: 16px;
@@ -48,9 +46,6 @@
   white-space: nowrap;
 }
 
-.price-pill:hover {
-  background-color: #e0e0e0;
-}
 
 #price-input-options-container input[type="radio"]:checked + label {
   background-color: #000;
@@ -77,4 +72,16 @@
   text-decoration: line-through;
   opacity: 0.6;
   cursor: pointer;
+}
+
+.offer-your-price-price{
+  display: block !important;
+  margin-right: 10px;
+}
+
+.price-item--regular{
+  text-decoration:none !important;
+}
+.price-item--sale{
+  text-decoration:none !important;
 }

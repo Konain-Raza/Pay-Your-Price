@@ -1,37 +1,28 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "7fcf0d670b1b54d30d42ebda57866784"
-application_url = "https://yesterday-biodiversity-pull-subscription.trycloudflare.com"
+client_id = "82d87b66d6e06b37d858bce9733f7fc1"
+application_url = "https://roland-inclusive-orders-norway.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
-handle = "offer-your-price"
+handle = "offer-your-price-3"
 
 [webhooks]
 api_version = "2025-01"
 
-  [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
-
-  [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
-
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_cart_transforms,read_products,write_products"
+scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/auth/callback",
-  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/auth/shopify/callback",
-  "https://yesterday-biodiversity-pull-subscription.trycloudflare.com/api/auth/callback"
+  "https://roland-inclusive-orders-norway.trycloudflare.com/auth/callback",
+  "https://roland-inclusive-orders-norway.trycloudflare.com/auth/shopify/callback",
+  "https://roland-inclusive-orders-norway.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
 embedded = false
 
 [build]
-include_config_on_deploy = true
-dev_store_url = "konainraza.myshopify.com"
+dev_store_url = "objectstesting.myshopify.com"
 automatically_update_urls_on_dev = true

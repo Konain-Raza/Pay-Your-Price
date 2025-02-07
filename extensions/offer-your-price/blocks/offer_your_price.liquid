@@ -17,11 +17,15 @@
 
 {% endif %}
 <link rel="stylesheet" type="text/css" href="/assets/styles.css">
-
+<style>
+    :root {
+    --price-options-background-color: {{ block.settings.price_options_background_color }};
+    --price-options-text-color: {{ block.settings.price_options_text_color }};
+  }
+</style>
 
 <script>
   console.log("Offer Your Price is Running");
-
   document.addEventListener("DOMContentLoaded", () => {
 
     const template = "{{ template }}";
@@ -30,24 +34,23 @@
       {% for variant in product.variants %}
         {{ variant.id }}: {
           available: {{variant.available}},
-          orignalPrice: "{{variant.price |  money}}",
+          orignalPrice: "{{variant.price |  money_with_currency}}",
           salePrice: "{{ variant.compare_at_price | divided_by: 100.0 }}",
-          displaySalePrice: "{{ variant.compare_at_price |  money }}",
+          displaySalePrice: "{{ variant.compare_at_price |  money_with_currency }}",
           minPrice: "{{ variant.metafields.objects.minimum_acceptable_price }}",
           maxPrice: "{{ variant.metafields.objects.maximum_acceptable_price }}",
           suggestedPrice: "{{ variant.metafields.objects.suggested_price }}",
           payYourPriceEnable: {{ variant.metafields.objects.enable_offer_your_price | default: false }},
           enablePayYourPriceOption: {{ variant.metafields.objects.enable_price_options | default: false }},
           priceOptions: {{ variant.metafields.objects.predefined_price_option | default: "[]" }},
-          displayMaxPrice: "{{ variant.metafields.objects.maximum_acceptable_price | times: 100 | money }}",
-          displaySuggestedPrice: "{{ variant.metafields.objects.suggested_price | times: 100 | money }}",
-          displayMinPrice: "{{ variant.metafields.objects.minimum_acceptable_price | times: 100 | money }}"
+          displayMaxPrice: "{{ variant.metafields.objects.maximum_acceptable_price | times: 100 | money_with_currency }}",
+          displaySuggestedPrice: "{{ variant.metafields.objects.suggested_price | times: 100 | money_with_currency }}",
+          displayMinPrice: "{{ variant.metafields.objects.minimum_acceptable_price | times: 100 | money_with_currency }}"
         }{% if forloop.last == false %},{% endif %}
       {% endfor %}
     };
     
     console.log(variantMetafields);  // Console log to check variant data
-
     const showSuggestedPrice = "{{ block.settings.show_suggested_price}}";
     const suggestedPriceLabel = "{{ block.settings.suggested_price_label }}";
     const addToCartButton = document.querySelector("#appcart_button");
@@ -73,17 +76,21 @@
       const qtyInput = document.getElementsByClassName("product-form__quantity")[0];
       const priceContainer = document.getElementsByClassName("price__regular")[0];
       const shopifyCartForm = document.querySelector('product-form .form');
-      let officialPrice = document.querySelector(".price-item.price-item--regular");;
+      let officialPrice = document.querySelector(".price-item--regular");;
       const salePrice = document.querySelector(".price__sale");
+      const regularPrice = document.querySelector(".price__regular");
+      regularPrice.classList.remove('price-item--regular');
+      regularPrice.classList.add('offer-your-price-price');
+      salePrice.style.display = "none";
       const saleBadge = document.querySelector(".price__badge-sale");
       const soldoutBadge = document.querySelector(".price__badge-sold-out");
+      saleBadge.style.display = "none";
       soldoutBadge.style.display = "none";
-      // if(saleBadge){
-      //   salePrice.style.display = "none";
-      //   saleBadge.style.display = "none";
-      // }
       if(!isAvailable){
         soldoutBadge.style.display = "inline-block";
+      }
+      if (parseFloat(comparePrice) > 0) {
+        saleBadge.style.display = "inline-block";
       }
       console.log("isEnabled:", isEnable);  // Debugging log
       errorMessageWrapper.hidden = true;
@@ -117,11 +124,10 @@
 
         if (qtyInput) {
           errorMessageWrapper.parentNode.insertBefore(form, errorMessageWrapper);
-
-
           if (parseFloat(minPrice.trim()) > 0 && parseFloat(maxPrice.trim()) > 0 && parseFloat(maxPrice) > parseFloat(minPrice)) {
-            salePrice.style.display = "none";
+            
             officialPrice.innerHTML = `${displayMinPrice} - ${displayMaxPrice}`;
+            saleBadge.style.display = "none";
             if (showSuggestedPrice === "true" && parseFloat(variantMetafields[id].suggestedPrice) > 0) {
               officialPrice.innerHTML += ` <br> ${suggestedPriceLabel}: ${displaySuggestedPrice}`;
             }
@@ -180,14 +186,14 @@
               priceOptionsContainer.innerHTML = "";
             }
           } else {
-            salePrice.style.display = "none";
+            
             if (parseFloat(comparePrice) > 0) {
               officialPrice.innerHTML = `<span class="underline">${displayComparePrice}</span> ${variantMetafields[id]['orignalPrice']}`;
-              document.querySelector(".price__badge-sale").style.display = "inline-block";
+              
               
             } else {
                 officialPrice.innerHTML = `${variantMetafields[id]['orignalPrice']}`;
-                document.querySelector(".price__badge-sale").style.display = "none";
+               
             }
 
 
@@ -220,11 +226,12 @@
             if (isNaN(inputValue) || inputValue < minPrice || inputValue > maxPrice) {
               event.preventDefault();
               showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+              return;
             } else {
               errorMessageWrapper.hidden = true;
               const customValue = document.getElementById("custom_property_price");
               customValue.value = inputValue;
-              submitBtn.click();
+              shopifyCartForm.submit();
               return;
             }
           });
@@ -233,11 +240,11 @@
       else{
         if (parseFloat(comparePrice) > 0) {
           officialPrice.innerHTML = `<span class="underline">${displayComparePrice}</span> ${variantMetafields[id]['orignalPrice']}`;
-          document.querySelector(".price__badge-sale").style.display = "inline-block";
+          
           
         } else {
             officialPrice.innerHTML = `${variantMetafields[id]['orignalPrice']}`;
-            document.querySelector(".price__badge-sale").style.display = "none";
+           
         }
 
         shopifyCartForm.style.display = "block";
@@ -263,7 +270,7 @@
         event.stopPropagation();
         const selectedValues = [];
 
-        const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
+        const checkedRadios = document.querySelectorAll('variant-selects input[type="radio"]:checked');
 
         checkedRadios.forEach(radio => {
           selectedValues.push(radio.value);
@@ -302,22 +309,35 @@
 
 
 {% schema %}
-{
-  "name": "Offer Your Price",
-  "target": "body",
-  "settings": [
-    {
-    "type": "checkbox",
-    "id": "show_suggested_price",
-    "label": "Show Suggested Price",
-    "info": "Enable this option to display the suggested price on your product pages."
-    },
-    {
-      "type": "text",
-      "id": "suggested_price_label",
-      "label": "Suggested Price Label",
-      "default": "Suggested Price"
-    }
-  ]
-}
-{% endschema %}
+  {
+    "name": "Offer Your Price",
+    "target": "body",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_suggested_price",
+        "label": "Show Suggested Price",
+        "info": "Enable this option to display the suggested price on your product pages."
+      },
+      {
+        "type": "text",
+        "id": "suggested_price_label",
+        "label": "Suggested Price Label",
+        "default": "Suggested Price"
+      },
+      {
+        "type": "color",
+        "id": "price_options_background_color",
+        "label": "Price Options Background Color",
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "price_options_text_color",
+        "label": "Price Options Text Color",
+        "default": "#000000"
+      }
+    ]
+  }
+  {% endschema %}
+  

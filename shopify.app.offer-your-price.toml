@@ -1,15 +1,14 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "82d87b66d6e06b37d858bce9733f7fc1"
-application_url = "https://correctly-activists-minimize-tribe.trycloudflare.com"
+client_id = "007d5d653dce7e3d07648ce2da83d354"
+application_url = "https://candle-berlin-revenge-adds.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
-handle = "offer-your-price-3"
+handle = "offer-your-price-2"
 
 [build]
 include_config_on_deploy = true
-dev_store_url = "bulk-store-dev.myshopify.com"
-automatically_update_urls_on_dev = true
+dev_store_url = "objectstesting.myshopify.com"
 
 [webhooks]
 api_version = "2025-01"
@@ -20,9 +19,9 @@ scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://correctly-activists-minimize-tribe.trycloudflare.com/auth/callback",
-  "https://correctly-activists-minimize-tribe.trycloudflare.com/auth/shopify/callback",
-  "https://correctly-activists-minimize-tribe.trycloudflare.com/api/auth/callback"
+  "https://candle-berlin-revenge-adds.trycloudflare.com/auth/callback",
+  "https://candle-berlin-revenge-adds.trycloudflare.com/auth/shopify/callback",
+  "https://candle-berlin-revenge-adds.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
