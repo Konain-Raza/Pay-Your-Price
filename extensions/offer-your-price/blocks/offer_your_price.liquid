@@ -151,6 +151,8 @@
                 label.textContent = option;
 
                 input.addEventListener('change', () => {
+                  errorMessageWrapper.hidden = true;
+                  errorMessage.textContent = "";
                   priceInput.style.display = 'none';
                   priceOptionsContainer.querySelectorAll('.price-pill').forEach(label => label.classList.remove('selected'));
                   label.classList.add('selected');
@@ -204,38 +206,45 @@
               addToCartButton.style.display = 'none';
             }
           }
-
-          form.addEventListener("submit", (event) => {
+          document.querySelector("product-form").addEventListener("submit", (event) => {
+            console.log("Shopify Product Form Submission Intercepted");
             event.preventDefault();
+            event.stopImmediatePropagation();
+
             let inputValue = false;
             if (variantMetafields[id].enablePayYourPriceOption && variantMetafields[id].priceOptions.length) {
-              const selectedOption = document.querySelector('input[name="priceOption"]:checked');
-              
-              if (selectedOption?.value === "other") {
-                  inputValue = priceInput.value.trim() ? parseFloat(priceInput.value) : 0;
-                  isValidInput.value = inputValue > 0;
-              } else {
-                  inputValue = parseFloat(selectedOption?.value) || 0;
-                  isValidInput.value = !!selectedOption;
-              }
+                const selectedOption = document.querySelector('input[name="priceOption"]:checked');
+                
+                if (selectedOption?.value === "other") {
+                    inputValue = priceInput.value.trim() ? parseFloat(priceInput.value) : 0;
+                    isValidInput.value = inputValue > 0;
+                } else {
+                    inputValue = parseFloat(selectedOption?.value) || 0;
+                    isValidInput.value = !!selectedOption;
+                }
             } else {
                 inputValue = priceInput.value.trim() ? parseFloat(priceInput.value) : 0;
                 isValidInput.value = inputValue > 0;
             }
 
-            if (isNaN(inputValue) || inputValue < minPrice || inputValue > maxPrice) {
-              event.preventDefault();
-              showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
-              return;
-            } else {
-              errorMessageWrapper.hidden = true;
-              const customValue = document.getElementById("custom_property_price");
-              customValue.value = inputValue;
-              shopifyCartForm.submit();
-              return;
+            if (isNaN(inputValue) || inputValue < variantMetafields[id].minPrice || inputValue > variantMetafields[id].maxPrice) {
+                console.log("Invalid price detected, blocking submission.");
+                showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+                return false;
             }
-          });
-        }
+
+            console.log("Valid price, allowing Shopify add-to-cart.");
+            
+            const customValue = document.getElementById("custom_property_price");
+            customValue.value = inputValue;
+
+            const submitButton = document.querySelector('.product-form__buttons button[type="submit"]');
+            if (submitButton && !submitButton.disabled) {
+                submitButton.click();
+            }
+        });
+
+    }
       }
       else{
         if (parseFloat(comparePrice) > 0) {
@@ -266,8 +275,9 @@
 
     variantRadios.forEach(radio => {
       radio.addEventListener('change', (event) => {
-        console.log({{product | json}});
         event.stopPropagation();
+        console.log({{product | json}});
+    
         const selectedValues = [];
 
         const checkedRadios = document.querySelectorAll('variant-selects input[type="radio"]:checked');
