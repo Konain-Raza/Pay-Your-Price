@@ -154,6 +154,7 @@
                   errorMessageWrapper.hidden = true;
                   errorMessage.textContent = "";
                   priceInput.style.display = 'none';
+                  customPriceInput.style.display = 'none';
                   priceOptionsContainer.querySelectorAll('.price-pill').forEach(label => label.classList.remove('selected'));
                   label.classList.add('selected');
                 });
@@ -174,6 +175,8 @@
               otherLabel.classList.add('price-pill');
               otherLabel.textContent = 'Other';
               otherInput.addEventListener('change', () => {
+                errorMessageWrapper.hidden = true;
+                errorMessage.textContent = "";
                 priceInput.style.display = 'block';  
                 priceOptionsContainer.querySelectorAll('.price-pill').forEach(label => {
                   label.classList.remove('selected');  
@@ -211,8 +214,20 @@
             event.preventDefault();
             event.stopImmediatePropagation();
 
+            const selectedVariantId = document.querySelector("[name='id']")?.value; // Get selected variant ID
+            console.log("Selected Variant ID:", selectedVariantId);
+
+            if (!selectedVariantId || !variantMetafields[selectedVariantId]) {
+                console.log("Invalid variant or metafield missing.");
+                showError("Invalid variant selection.");
+                return false;
+            }
+
+            const currentSelectedVariantData = variantMetafields[selectedVariantId];
+            console.log("Current Variant Metafields:", currentSelectedVariantData);
+
             let inputValue = false;
-            if (variantMetafields[id].enablePayYourPriceOption && variantMetafields[id].priceOptions.length) {
+            if (currentSelectedVariantData.enablePayYourPriceOption && currentSelectedVariantData.priceOptions.length) {
                 const selectedOption = document.querySelector('input[name="priceOption"]:checked');
                 
                 if (selectedOption?.value === "other") {
@@ -227,9 +242,9 @@
                 isValidInput.value = inputValue > 0;
             }
 
-            if (isNaN(inputValue) || inputValue < variantMetafields[id].minPrice || inputValue > variantMetafields[id].maxPrice) {
+            if (isNaN(inputValue) || inputValue < currentSelectedVariantData.minPrice || inputValue > currentSelectedVariantData.maxPrice) {
                 console.log("Invalid price detected, blocking submission.");
-                showError(`Please enter a price between ${displayMinPrice} and ${displayMaxPrice}.`);
+                showError(`Please enter a price between ${currentSelectedVariantData.displayMinPrice} and ${currentSelectedVariantData.displayMaxPrice}.`);
                 return false;
             }
 
@@ -243,7 +258,6 @@
                 submitButton.click();
             }
         });
-
     }
       }
       else{
@@ -267,6 +281,8 @@
     }
 
     function showError(message) {
+      // document.querySelector("#price-input").style.display = "none";
+      // document.querySelector("#price-input").value = "";
       errorMessage.textContent = message;
       errorMessageWrapper.hidden = false;
     }
@@ -277,6 +293,8 @@
       radio.addEventListener('change', (event) => {
         event.stopPropagation();
         console.log({{product | json}});
+            document.querySelector("#price-input").style.display = "none";
+      document.querySelector("#price-input").value = "";
     
         const selectedValues = [];
 
