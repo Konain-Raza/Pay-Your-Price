@@ -85,3 +85,20 @@
 .price-item--sale{
   text-decoration:none !important;
 }
+
+.price__sale{
+  display: none !important;
+}
+.price__regular{
+  display: block !important;
+  color: black !important;
+}
+.price-item--regular{
+  display: block !important;
+  font-size: 1.6rem !important;
+  color: black !important;
+}
+
+.quick-add {
+  display: none !important;
+}

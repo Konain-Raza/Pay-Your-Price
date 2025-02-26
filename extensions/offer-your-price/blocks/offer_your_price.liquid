@@ -52,7 +52,7 @@
     
     console.log(variantMetafields);  // Console log to check variant data
     const showSuggestedPrice = "{{ block.settings.show_suggested_price}}";
-    const suggestedPriceLabel = "{{ block.settings.suggested_price_label }}";
+    const suggestedPriceLabel = "{{ block.settings.suggested_price_label | default: "Suggested Price" }}";
     const addToCartButton = document.querySelector("#appcart_button");
     const submitBtn = document.querySelector(".product-form__buttons > .product-form__submit");
     const form = document.getElementById("offer-your-price-form");
@@ -148,7 +148,8 @@
                 const label = document.createElement('label');
                 label.setAttribute('for', input.id);
                 label.classList.add('price-pill');
-                label.textContent = option;
+                let optionPrice = "{{ cart.currency.symbol }}";
+                label.textContent = `${optionPrice}${option} `;
 
                 input.addEventListener('change', () => {
                   errorMessageWrapper.hidden = true;
@@ -326,13 +327,74 @@
 
     {% if template == 'product' %}
       console.log(variantRadios);
-      console.log({{product.available}});
+      console.log({{ product.available | json }});
+
       const currentProduct = document.querySelector('input[name="id"]').value;
-      priceInput.style.display = "none";
-      updateData(currentProduct); 
-    {% endif %}
+      // const priceInput = document.querySelector("#price-input"); // Ensure priceInput is selected correctly
+
+      if (priceInput) {
+        priceInput.style.display = "none";
+      }
+
+      updateData(currentProduct);
+
+      {% elsif template == 'collection' %}
+       const CollectionMetafields = {};
+
+{% for product in collection.products %}
+    // const titleofProd = "{{ product.title | escape }}".trim(); // Ensure title is clean
+    CollectionMetafields["{{product.title}}"] = {
+      title: "{{ product.title }}",
+      available: {{ product.selected_or_first_available_variant.available | json }},
+      originalPrice: "{{ product.selected_or_first_available_variant.price | money_with_currency }}",
+      salePrice: "{{ product.selected_or_first_available_variant.compare_at_price | divided_by: 100.0 }}",
+      displaySalePrice: "{{ product.selected_or_first_available_variant.compare_at_price | money_with_currency }}",
+      minPrice: "{{ product.selected_or_first_available_variant.metafields.objects.minimum_acceptable_price | default: 0 }}",
+      maxPrice: "{{ product.selected_or_first_available_variant.metafields.objects.maximum_acceptable_price | default: 0 }}",
+      suggestedPrice: "{{ product.selected_or_first_available_variant.metafields.objects.suggested_price | default: 0 }}",
+      payYourPriceEnable: {{ product.selected_or_first_available_variant.metafields.objects.enable_offer_your_price | default: false | json }},
+      enablePayYourPriceOption: {{ product.selected_or_first_available_variant.metafields.objects.enable_price_options | default: false | json }},
+      priceOptions: {{ product.selected_or_first_available_variant.metafields.objects.predefined_price_option | default: "[]" | json }},
+      displayMaxPrice: "{{ product.selected_or_first_available_variant.metafields.objects.maximum_acceptable_price | times: 100 | money_with_currency }}",
+      displaySuggestedPrice: "{{ product.selected_or_first_available_variant.metafields.objects.suggested_price | times: 100 | money_with_currency }}",
+      displayMinPrice: "{{ product.selected_or_first_available_variant.metafields.objects.minimum_acceptable_price | times: 100 | money_with_currency }}"
+    };
+{% endfor %}
+
+console.log("Template is collection",);
+
+document.querySelectorAll(".card__content").forEach((card) => {
+  const titleElement = card.querySelector(".card__heading a");
+  const priceElement = card.querySelector(".price-item--regular");
+
+  if (titleElement && priceElement) {
+    const productTitle = titleElement.innerText.trim();
+    const productData = CollectionMetafields[productTitle];
+
+    console.log(`Checking: ${productTitle}`, productData);
+
+    if (productData) {
+      if (productData.payYourPriceEnable && productData.available) {
+        console.log(`Updating price for: ${productTitle}`);
+        priceElement.textContent = productData.displayMinPrice + " - " + productData.displayMaxPrice;
+      }else if (productData.available && productData.salePrice > 0 ){
+        priceElement.innerHTML = `<span class="underline">${productData.originalPrice}</span> ${productData.displaySalePrice}`;
+      }
+       else {
+        console.log(`No change for ${productTitle} (payYourPriceEnable is false)`);
+      }
+    } else {
+      console.log(`Product not found in CollectionMetafields: ${productTitle}`);
+    }
+  } else {
+    console.log("Missing titleElement or priceElement in some cards.");
+  }
+});
+{% endif %}
+
   });
-</script>
+  </script>
+
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 
 

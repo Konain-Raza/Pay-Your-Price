@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "82d87b66d6e06b37d858bce9733f7fc1"
-application_url = "https://mighty-dt-league-coordination.trycloudflare.com"
+application_url = "https://agricultural-pm-lows-promotional.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
 handle = "offer-your-price-3"
@@ -15,9 +15,9 @@ scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://mighty-dt-league-coordination.trycloudflare.com/auth/callback",
-  "https://mighty-dt-league-coordination.trycloudflare.com/auth/shopify/callback",
-  "https://mighty-dt-league-coordination.trycloudflare.com/api/auth/callback"
+  "https://agricultural-pm-lows-promotional.trycloudflare.com/auth/callback",
+  "https://agricultural-pm-lows-promotional.trycloudflare.com/auth/shopify/callback",
+  "https://agricultural-pm-lows-promotional.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
@@ -26,3 +26,4 @@ embedded = false
 [build]
 dev_store_url = "objectstesting.myshopify.com"
 automatically_update_urls_on_dev = true
+include_config_on_deploy = true

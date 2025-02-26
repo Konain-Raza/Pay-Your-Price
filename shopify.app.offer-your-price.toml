@@ -1,10 +1,10 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "007d5d653dce7e3d07648ce2da83d354"
-application_url = "https://candle-berlin-revenge-adds.trycloudflare.com"
+client_id = "a718b176799baac9f936e4997cef6a35"
+application_url = "https://sku-calculators-building-legislative.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
-handle = "offer-your-price-2"
+handle = "offer-your-price-3"
 
 [build]
 include_config_on_deploy = true
@@ -19,9 +19,9 @@ scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://candle-berlin-revenge-adds.trycloudflare.com/auth/callback",
-  "https://candle-berlin-revenge-adds.trycloudflare.com/auth/shopify/callback",
-  "https://candle-berlin-revenge-adds.trycloudflare.com/api/auth/callback"
+  "https://sku-calculators-building-legislative.trycloudflare.com/auth/callback",
+  "https://sku-calculators-building-legislative.trycloudflare.com/auth/shopify/callback",
+  "https://sku-calculators-building-legislative.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
