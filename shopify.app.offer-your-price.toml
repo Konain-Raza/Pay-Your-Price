@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a718b176799baac9f936e4997cef6a35"
-application_url = "https://calculations-fabulous-transmit-eminem.trycloudflare.com"
+application_url = "https://variable-circuit-circular-wherever.trycloudflare.com"
 embedded = true
 name = "Offer Your Price"
 handle = "offer-your-price-3"
@@ -20,9 +20,9 @@ scopes = "read_products,write_cart_transforms,write_products"
 
 [auth]
 redirect_urls = [
-  "https://calculations-fabulous-transmit-eminem.trycloudflare.com/auth/callback",
-  "https://calculations-fabulous-transmit-eminem.trycloudflare.com/auth/shopify/callback",
-  "https://calculations-fabulous-transmit-eminem.trycloudflare.com/api/auth/callback"
+  "https://variable-circuit-circular-wherever.trycloudflare.com/auth/callback",
+  "https://variable-circuit-circular-wherever.trycloudflare.com/auth/shopify/callback",
+  "https://variable-circuit-circular-wherever.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

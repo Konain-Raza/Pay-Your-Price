@@ -7,6 +7,7 @@ import feature2 from "../assets/images/minimum_and_maximum_acceptable_price.svg"
 import feature3 from "../assets/images/set_predefined_pricing_options.svg"
 import feature4 from "../assets/images/variant_select.svg"
 import supportIcon from "../assets/images/app_support_icons.svg"
+import wave from "../assets/images/Waving Hand.gif"
 import { createMetafields } from "../services/registerMetafields";
 import { registerCartTransform } from "../services/registerCloudFunctions";
 
@@ -31,7 +32,7 @@ export default function OfferPriceApp() {
   const { shopOwnerName } = useLoaderData(); 
 
   const features = [
-    { title: "💰 Custom Price Input", description: "Increase your revenue by letting your customers choose their desired prices.", image: feature1 },
+    { title: "💰 Custom Price Input", description: "Unlock more sales by letting your customers decide what they’re willing to pay!", image: feature1 },
     { title: "📏 Minimum & Maximum Price", description: "Place pricing limits to manage how much customers can bid for your product.", image: feature2 },
     { title: "🎯 Predefined Pricing Options", description: "Pick from ready-made pricing plans for an effortless, lightning-fast selection.", image: feature3 },
     { title: "🔄 Variant Selection", description: "Allow customers to pay what they want, even for different product variants.", image: feature4 }
@@ -52,7 +53,8 @@ export default function OfferPriceApp() {
         <Box paddingBlockEnd="400">
         <InlineStack gap="400" align="space-between" blockAlign="center">
           <Box>
-          <Text variant="headingLg" as="h1">Hello {shopOwnerName}</Text>
+          <Text variant="headingLg" as="h1">Hello, {shopOwnerName} 👋🏻
+          </Text>
             <InlineStack gap="100">
 
              <Text>Welcome to Offer Your Price, crafted with ❤️ by 
@@ -113,7 +115,7 @@ export default function OfferPriceApp() {
           </Box>
 
             <CalloutCard
-              title="Need help? Our support team is here for you! 😊
+              title="Need help? Our support team is always there for you! 😊
 "
               illustration={supportIcon}
               primaryAction={{ content: "Get Support", onClick: () => console.log("clicked") }}
